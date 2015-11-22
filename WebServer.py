@@ -4,6 +4,10 @@ import sys
 import argparse
 import path
 import os
+#import m2crypto
+import mimetypes
+import time
+import datetime
 
 from OpenSSL import SSL
 #http://carlo-hamalainen.net/blog/2013/1/24/python-ssl-socket-echo-test-with-self-signed-certificate
@@ -19,12 +23,12 @@ def socket_function(args):
     HOST = ''
     PORT = args.PORT
     BASE_DIR = args.BASE_DIR
-    context = SSL.Context(SSL.SSLv23_METHOD)
-    context.use_privatekey_file('key')
-    context.use_certificate_file('cert')
+    #context = SSL.Context(SSL.SSLv23_METHOD)
+    #context.use_privatekey_file('key')
+    #context.use_certificate_file('cert')
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    listen_socket = SSL.Connection(context, listen_socket)
+    #listen_socket = SSL.Connection(context, listen_socket)
     listen_socket.bind((HOST, PORT))
     #sslSocket = socket.ssl(listen_socket)
     listen_socket.listen(1)
@@ -38,66 +42,60 @@ def socket_function(args):
         requestPreface = request[:3] #this gives you the preface of the get of it is a get
         if requestPreface == 'GET':
             print requestPreface
-            print "this is a GET request"
             getrequest = request.split( )
             print getrequest
-            #requestedobj = getrequest.rsplit('HTTP', 1)[0]
-            #print requestedobj
             newrequest = getrequest[1]
+            requesttype = mimetypes.guess_type(newrequest)
+            reqtype = str(requesttype[0])
+            print "this is the type of my request", requesttype[0]
             print newrequest
             #now we have to account for the 202, 404, and 501
             try:
-                File = open(BASE_DIR+newrequest, 'r') #rb
+                File = open(BASE_DIR+newrequest, 'rb') #rb
                 print "Here's your file %r:" % BASE_DIR+newrequest
                 readFile = File.read()
                 File.close()
-                http_response_200 = """\
-                HTTP/1.1 200 OK
+                #GET /path/to/file/index.html HTTP/1.0
+                '''HTTP/1.1 200 OK
+                Date: Fri, 31 Dec 1999 23:59:59 GMT
+                Content-Type: text/plain
+                Content-Length: 42
+                some-footer: some-value
+                another-footer: another-value'''
 
-                """
-
-                content_type = tex/html; charset=utf - 8\r\n
-
-                content_length = \r\n
-                date = 
-                response = 
-                response200 = http_response_200.join(readFile)
-                client_connection.sendall(readFile)
+                http200 = "HTTP/1.1 200 OK"
+                content_type = "Content-Type: %s" %reqtype
+                now = time.strftime("%c")
+                now1 = datetime.datetime.now()
+                date = now1
+                print date
+                response = http200+"\n"+content_type+"\n\n"+readFile
+                #print response
+                client_connection.sendall(response)
                 client_connection.close()
             except IOError as e:
                 print('Uh oh! the file does not exist')
-                http_response_404 = """\
-                HTTP/1.1 404 NOT FOUND
-
-                """
-
-                print "404 NOT FOUND ERROR"
-                client_connection.sendall(http_response_404)
+                http404 = "HTTP/1.1 404 Not Found"
+                content_type = "Content-Type: %s" %reqtype
+                response = http404+"\n"+content_type+"\n\n"+"404 NOT FOUND"
+                #print response
+                client_connection.send(response)
                 client_connection.close()
         if requestPreface != 'GET':
             print "this is not a GET request" #then this is a 501 error
-            http_response_501 = """\
-            HTTP/1.1 501 NOT OK
-            
-            Request method not implemented
-            """ 
             print "501 ERROR"
+            http501 = "HTTP/1.1 501 Request method not implemented"
+            content_type = "Content-Type: %s" %reqtype
+            response = http501+"\n"+content_type+"\n\n"+"501 Request method not implemented"
             #when post and head are sent  
-            client_connection.sendall(http_response_501)
+            client_connection.sendall(http501)
             client_connection.close()   
-        #if the first three chars are GET then == 200 response
-        #if the chars are Post then 501
-        #if that open fails and if it cannot open then it is a 404 error
-       #string concstenation for this  
-        #contents"\n"  
-        #contents of file
-       # +readfile
 def main():
     parser = argparse.ArgumentParser(prog='WebServer', description='Create a web server that will be able to display an HTML file') 
     #these are optional since the program should run without the inputs
     parser.add_argument('-p','--port=####', dest= 'PORT', default = 8080, type = int, action='store', help='PORT Port number to listen on')
     #8081 1024-65000 for testing the port
-    parser.add_argument('-b','--base=/path/to/directory', dest = 'BASE_DIR', default = "/Users/makahoshi/Desktop/HTTP/example_site-2" ,type = str, action='store', help='BASE_DIR Base dir containing website')
+    parser.add_argument('-b','--base=/path/to/directory', dest = 'BASE_DIR', default = "/Users/makahoshi/Desktop/CSC_546_HTTP/example_site-2" ,type = str, action='store', help='BASE_DIR Base dir containing website')
     args = parser.parse_args()
     print args
     #if you receive an argument for the port from the command line
