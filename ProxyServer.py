@@ -36,25 +36,25 @@ def socket_function(args):
             print requesttype
             reqtype = str(requesttype[0])
             print reqtype
-            req = urllib2.Request('http://'+finalurl)
-            response = urllib2.urlopen(req)
-            print '----------------------------------------'
-            print 'RESPONSE:', response
-            print 'URL     :', response.geturl()
-            headers = response.info()
-            date = headers['date']
-            content = headers['Content-Type']
-            response_code = response.code
-            print 'DATE    :', date
-            print 'CONTENT-TYPE :', content
-            print '------------------------------------------'
-            print 'HEADERS :', headers
-            print "This gets the code: ", response.code
             #req = urllib2.Request(url,None, header)
             #response = urllib2.urlopen(req)
             #response = urllib2.urlopen('http://localhost:8080/')
 			#headers = { 'User-Agent' : user_agent }
             try:
+            	req = urllib2.Request('http://'+finalurl)
+            	response = urllib2.urlopen(req)
+            	print '----------------------------------------'
+            	print 'RESPONSE:', response
+            	print 'URL     :', response.geturl()
+            	headers = response.info()
+            	date = headers['date']
+            	content = headers['Content-Type']
+            	response_code = response.code
+            	print 'DATE    :', date
+            	print 'CONTENT-TYPE :', content
+            	print '------------------------------------------'
+            	print 'HEADERS :', headers
+            	print "This gets the code: ", response.code
                 if response_code == 200:
 	                website = response.read()
 	                length = len(website)
@@ -74,8 +74,8 @@ def socket_function(args):
                 print 'We failed to reach a server.'
                 print 'Reason: ', e.reason
 	                #print response
-	               #client_connection.sendall(response)
-	if requestPreface != 'GET':
+	               #client_connection.sendall(response
+	    if requestPreface != 'GET':
             print "this is not a GET request" #then this is a 501 error
             print "501 ERROR"
 
@@ -84,7 +84,7 @@ def main():
     #these are optional since the program should run without the inputs
     parser.add_argument('-p','--port=####', dest= 'PORT', default = 8080, type = int, action='store', help='PORT Port number to listen on')
     #8081 1024-65000 for testing the port
-    parser.add_argument('-f','--fun', dest= 'url', type = str, action='store', help='for something fun')
+    parser.add_argument('-f','--fun', dest= 'urlfun', type = str, action='store', help='for something fun')
     args = parser.parse_args()
     print args
     #if you receive an argument for the port from the command line
