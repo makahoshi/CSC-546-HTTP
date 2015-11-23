@@ -4,7 +4,6 @@ import sys
 import argparse
 import path
 import os
-#import m2crypto
 import mimetypes
 import time
 import datetime
@@ -50,6 +49,10 @@ def socket_function(args):
             print "this is the type of my request", requesttype[0]
             print newrequest
             #now we have to account for the 202, 404, and 501
+            for root, dirs, files in os.walk(".", topdown=False):
+                for name in files:
+                    print(os.path.join(root, name))
+
             try:
                 File = open(BASE_DIR+newrequest, 'rb') #rb
                 print "Here's your file %r:" % BASE_DIR+newrequest
@@ -78,7 +81,6 @@ def socket_function(args):
                 http404 = "HTTP/1.1 404 Not Found"
                 content_type = "Content-Type: %s" %reqtype
                 response = http404+"\n"+content_type+"\n\n"+"404 NOT FOUND"
-                #print response
                 client_connection.send(response)
                 client_connection.close()
         if requestPreface != 'GET':
@@ -95,17 +97,15 @@ def main():
     #these are optional since the program should run without the inputs
     parser.add_argument('-p','--port=####', dest= 'PORT', default = 8080, type = int, action='store', help='PORT Port number to listen on')
     #8081 1024-65000 for testing the port
-    parser.add_argument('-b','--base=/path/to/directory', dest = 'BASE_DIR', default = "/Users/makahoshi/Desktop/CSC_546_HTTP/example_site-2" ,type = str, action='store', help='BASE_DIR Base dir containing website')
+    parser.add_argument('-b','--base=/path/to/directory', dest = 'BASE_DIR', default = "/Users/makahoshi/Desktop/CSC546Lab/HTTP/example_site-2" ,type = str, action='store', help='BASE_DIR Base dir containing website')
     args = parser.parse_args()
     print args
     #if you receive an argument for the port from the command line
     if args.PORT != None:
         #make port = to the argument
         socket_function(args)
-        print PORT
     if args.BASE_DIR != None:
         socket_function(args)
-        print BASE_DIR
 
 if __name__ == "__main__":
     main()   
